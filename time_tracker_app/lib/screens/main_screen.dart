@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:time_tracker_app/screens/selector_screen.dart';
-import 'package:time_tracker_app/widgets/bottom_navigation_bar.dart';
-import 'package:time_tracker_app/widgets/primary_button.dart';
 import 'package:time_tracker_app/widgets/text_field.dart';
-import 'package:intl/intl.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -22,13 +19,15 @@ class _MainScreentate extends State<MainScreen> {
   final StopWatchTimer _stopWatchTimer4 = StopWatchTimer();
   final StopWatchTimer _stopWatchTimer5 = StopWatchTimer();
   final StopWatchTimer _stopWatchTimer6 = StopWatchTimer();
-  late List<StopWatchTimer> _stopWatchTimers = [
+  final StopWatchTimer _stopWatchTimerOther = StopWatchTimer();
+  late final List<StopWatchTimer> _stopWatchTimers = [
     _stopWatchTimer1,
     _stopWatchTimer2,
     _stopWatchTimer3,
     _stopWatchTimer4,
     _stopWatchTimer5,
-    _stopWatchTimer6
+    _stopWatchTimer6,
+    _stopWatchTimerOther
   ];
   String buttonName1 = '<empty>';
   String buttonName2 = '<empty>';
@@ -36,24 +35,28 @@ class _MainScreentate extends State<MainScreen> {
   String buttonName4 = '<empty>';
   String buttonName5 = '<empty>';
   String buttonName6 = '<empty>';
+  String buttonNameOther = 'other...';
   String _formattedTime1 = '00:00';
   String _formattedTime2 = '00:00';
   String _formattedTime3 = '00:00';
   String _formattedTime4 = '00:00';
   String _formattedTime5 = '00:00';
   String _formattedTime6 = '00:00';
+  String _formattedTimeOther = '00:00';
   int totalTimeInSeconds1 = 0;
   int totalTimeInSeconds2 = 0;
   int totalTimeInSeconds3 = 0;
   int totalTimeInSeconds4 = 0;
   int totalTimeInSeconds5 = 0;
   int totalTimeInSeconds6 = 0;
+  int totalTimeInSecondsOther = 0;
   bool isTimerRunning1 = false;
   bool isTimerRunning2 = false;
   bool isTimerRunning3 = false;
   bool isTimerRunning4 = false;
   bool isTimerRunning5 = false;
   bool isTimerRunning6 = false;
+  bool isTimerRunningOther = false;
   MaterialStateProperty<Color?>? bgColor1 = MaterialStateProperty.all<Color>(
       const Color.fromARGB(255, 255, 255, 255));
   Color? timerColor1 = Colors.black;
@@ -72,6 +75,10 @@ class _MainScreentate extends State<MainScreen> {
   MaterialStateProperty<Color?>? bgColor6 = MaterialStateProperty.all<Color>(
       const Color.fromARGB(255, 255, 255, 255));
   Color? timerColor6 = Colors.black;
+  MaterialStateProperty<Color?>? bgColorOther =
+      MaterialStateProperty.all<Color>(
+          const Color.fromARGB(255, 255, 255, 255));
+  Color? timerColorOther = Colors.black;
   bool anyTimerRunning = false;
 
   @override
@@ -86,20 +93,22 @@ class _MainScreentate extends State<MainScreen> {
   void _loadSavedText() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? savedText = prefs.getString('savedText');
-    
 
     for (int i = 0; i < _stopWatchTimers.length; i++) {
-      if (savedText != null && _stopWatchTimers[i].isRunning) {
+      if (_stopWatchTimers[i].isRunning) {
         setState(() {
           anyTimerRunning = true;
-          textController.text = savedText;
+          savedText ??= '';
+          textController.text = savedText!;
         });
-      } 
+      }
       setState(() {
         if (anyTimerRunning) {
+          
           String? savedText = prefs.getString('savedText');
-          textController.text = savedText!; // Устанавливаем сохраненный текст
-        } 
+          savedText ??= '';
+          textController.text = savedText; // Устанавливаем сохраненный текст
+        }
       });
     }
   }
@@ -114,10 +123,13 @@ class _MainScreentate extends State<MainScreen> {
             _stopWatchTimer3.isRunning ||
             _stopWatchTimer4.isRunning ||
             _stopWatchTimer5.isRunning ||
-            _stopWatchTimer6.isRunning) {
-          setState(() {
-            textController.text = savedText!;
-          });
+            _stopWatchTimer6.isRunning ||
+            _stopWatchTimerOther.isRunning) {
+          if (savedText != null) {
+            setState(() {
+              textController.text = savedText;
+            });
+          }
         } else {
           setState(() {
             anyTimerRunning = false;
@@ -141,12 +153,14 @@ class _MainScreentate extends State<MainScreen> {
     int? timerStartTime4 = prefs.getInt('initialTime4');
     int? timerStartTime5 = prefs.getInt('initialTime5');
     int? timerStartTime6 = prefs.getInt('initialTime6');
+    int? timerStartTimeOther = prefs.getInt('initialTimeOther');
     List<String> timeComponents1 = _formattedTime1.split(':');
     List<String> timeComponents2 = _formattedTime2.split(':');
     List<String> timeComponents3 = _formattedTime3.split(':');
     List<String> timeComponents4 = _formattedTime4.split(':');
     List<String> timeComponents5 = _formattedTime5.split(':');
     List<String> timeComponents6 = _formattedTime6.split(':');
+    List<String> timeComponentsOther = _formattedTimeOther.split(':');
 
     int minutes1 = int.parse(timeComponents1[0]);
     int seconds1 = int.parse(timeComponents1[1]);
@@ -166,12 +180,16 @@ class _MainScreentate extends State<MainScreen> {
     int minutes6 = int.parse(timeComponents6[0]);
     int seconds6 = int.parse(timeComponents6[1]);
 
+    int minutesOther = int.parse(timeComponentsOther[0]);
+    int secondsOther = int.parse(timeComponentsOther[1]);
+
     totalTimeInSeconds1 = minutes1 * 60 + seconds1;
     totalTimeInSeconds2 = minutes2 * 60 + seconds2;
     totalTimeInSeconds3 = minutes3 * 60 + seconds3;
     totalTimeInSeconds4 = minutes4 * 60 + seconds4;
     totalTimeInSeconds5 = minutes5 * 60 + seconds5;
     totalTimeInSeconds6 = minutes6 * 60 + seconds6;
+    totalTimeInSecondsOther = minutesOther * 60 + secondsOther;
 
     setState(() {
       timerStartTime1 = totalTimeInSeconds1;
@@ -208,37 +226,92 @@ class _MainScreentate extends State<MainScreen> {
       prefs.setInt('initialTime6', timerStartTime6!);
       totalTimeInSeconds6 = timerStartTime6!;
     });
+
+    setState(() {
+      timerStartTimeOther = totalTimeInSecondsOther;
+      prefs.setInt('initialTimeOther', timerStartTimeOther!);
+      totalTimeInSecondsOther = timerStartTimeOther!;
+    });
   }
 
-  // Future<void> _checkAndResetTimer() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String? timerStartTime = prefs.getString('timerStartTime');
-  //   DateTime savedStartTime = DateTime.parse(timerStartTime ?? '');
-  //   DateTime now = DateTime.now();
-  //   if (now.isAfter(savedStartTime.add(Duration(days: 1)))) {
-  //     // Начался новый день, сбросить таймер
-  //     _stopWatchTimer.onResetTimer();
-  //     timerStartTime = DateFormat('yyyy-MM-dd').format(now);
-  //     prefs.setString('timerStartTime', timerStartTime);
-  //   }
-  // }
-
-  void loadTimers() async {
+  loadTimer1() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? timer1 = prefs.getString('timer1');
-    String? timer2 = prefs.getString('timer2');
-    String? timer3 = prefs.getString('timer3');
-    String? timer4 = prefs.getString('timer4');
-    String? timer5 = prefs.getString('timer5');
-    String? timer6 = prefs.getString('timer6');
+    if (timer1 != null) {
     setState(() {
-      _formattedTime1 = timer1!;
-      _formattedTime2 = timer2!;
-      _formattedTime3 = timer3!;
-      _formattedTime4 = timer4!;
-      _formattedTime5 = timer5!;
-      _formattedTime6 = timer6!;
+      _formattedTime1 = timer1;
     });
+   }
+  }
+
+  loadTimer2() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? timer2 = prefs.getString('timer2');
+    if (timer2 != null) {
+    setState(() {
+      _formattedTime2 = timer2;
+    });
+   }
+  }
+
+  loadTimer3() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? timer3 = prefs.getString('timer3');
+    if (timer3 != null) {
+    setState(() {
+      _formattedTime3 = timer3;
+    });
+   }
+  }
+
+  loadTimer4() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? timer4 = prefs.getString('timer4');
+    if (timer4 != null) {
+    setState(() {
+      _formattedTime4 = timer4;
+    });
+   }
+  }
+
+  loadTimer5() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? timer5 = prefs.getString('timer5');
+    if (timer5 != null) {
+    setState(() {
+      _formattedTime5 = timer5;
+    });
+   }
+  }
+
+  loadTimer6() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? timer6 = prefs.getString('timer6');
+    if (timer6 != null) {
+    setState(() {
+      _formattedTime6 = timer6;
+    });
+   }
+  }
+
+  loadTimerOther() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? timerOther = prefs.getString('timerOther');
+    if (timerOther  != null) {
+    setState(() {
+      _formattedTimeOther  = timerOther ;
+    });
+   }
+  }
+
+  void loadTimers() async {
+    loadTimer1();
+    loadTimer2();
+    loadTimer3();
+    loadTimer4();
+    loadTimer5();
+    loadTimer6();
+    loadTimerOther();
   }
 
   void _startTimer1() async {
@@ -296,7 +369,6 @@ class _MainScreentate extends State<MainScreen> {
       _stopWatchTimer3.setPresetTime(mSec: initialTimeInSeconds * 1000);
       isTimerRunning3 = true; // Устанавливаем флаг, что таймер запущен
     }
-
     _stopWatchTimer3.rawTime.listen((value) {
       final minutes = (value / 60000).floor();
       final seconds = ((value % 60000) / 1000).floor();
@@ -379,6 +451,29 @@ class _MainScreentate extends State<MainScreen> {
     _stopWatchTimer6.onStartTimer();
   }
 
+  void _startTimerOther() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? timerOther = prefs.getString('timerOther');
+    int initialTimeInSeconds = totalTimeInSecondsOther;
+
+    if (!isTimerRunningOther) {
+      _stopWatchTimerOther.setPresetTime(mSec: initialTimeInSeconds * 1000);
+      isTimerRunningOther = true; // Устанавливаем флаг, что таймер запущен
+    }
+
+    _stopWatchTimerOther.rawTime.listen((value) {
+      final minutes = (value / 60000).floor();
+      final seconds = ((value % 60000) / 1000).floor();
+      setState(() {
+        _formattedTimeOther = '$minutes:${seconds.toString().padLeft(2, '0')}';
+        timerOther = _formattedTimeOther;
+        prefs.setString('timerOther', timerOther!);
+        _formattedTimeOther = timerOther!;
+      });
+    });
+    _stopWatchTimerOther.onStartTimer();
+  }
+
   _loadButtonNameFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? name1 = prefs.getString('fileName1');
@@ -387,6 +482,7 @@ class _MainScreentate extends State<MainScreen> {
     String? name4 = prefs.getString('fileName4');
     String? name5 = prefs.getString('fileName5');
     String? name6 = prefs.getString('fileName6');
+    String? other = prefs.getString('fileNameOther');
     if (name1 != null) {
       setState(() {
         buttonName1 = name1;
@@ -417,6 +513,11 @@ class _MainScreentate extends State<MainScreen> {
         buttonName6 = name6;
       });
     }
+    if (other != null) {
+      setState(() {
+        buttonNameOther = 'other...';
+      });
+    }
   }
 
   @override
@@ -428,14 +529,13 @@ class _MainScreentate extends State<MainScreen> {
     _stopWatchTimer4.dispose();
     _stopWatchTimer5.dispose();
     _stopWatchTimer6.dispose();
+    _stopWatchTimerOther.dispose();
     super.dispose();
   }
 
   void checkFirstTimeRun() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isFirstTime = prefs.getBool('first_time_run') ?? true;
-    print(anyTimerRunning);
-
     if (isFirstTime) {
       // ignore: use_build_context_synchronously
       await showDialog(
@@ -470,7 +570,8 @@ class _MainScreentate extends State<MainScreen> {
       buttonName3,
       buttonName4,
       buttonName5,
-      buttonName6
+      buttonName6,
+      buttonNameOther
     ];
     List<String> timers = [
       _formattedTime1,
@@ -478,10 +579,10 @@ class _MainScreentate extends State<MainScreen> {
       _formattedTime3,
       _formattedTime4,
       _formattedTime5,
-      _formattedTime6
+      _formattedTime6,
+      _formattedTimeOther
     ];
     return Scaffold(
-        // bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 0),
         body: SafeArea(
       child: IntrinsicHeight(
         child: Center(
@@ -509,6 +610,26 @@ class _MainScreentate extends State<MainScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           ElevatedButton(
+                            onLongPress: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              String? name = prefs.getString('fileName1');
+                              if (!_stopWatchTimer1.isRunning) {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
+                                );
+                                setState(() {
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName1', name!);
+                                    buttonName1 = name!;
+                                  }
+                                });
+                              }
+                            },
                             style: ButtonStyle(
                                 shape: MaterialStatePropertyAll(
                                     RoundedRectangleBorder(
@@ -549,12 +670,15 @@ class _MainScreentate extends State<MainScreen> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const SelectorScreen()),
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
                                 );
                                 setState(() {
-                                  name = result;
-                                  prefs.setString('fileName1', name!);
-                                  buttonName1 = name!;
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName1', name!);
+                                    buttonName1 = name!;
+                                  }
                                 });
                               }
                             },
@@ -571,21 +695,42 @@ class _MainScreentate extends State<MainScreen> {
                                 SizedBox(
                                   width: 20,
                                 ),
-                                StreamBuilder<int>(
-                                  stream: _stopWatchTimer1.rawTime,
-                                  initialData: totalTimeInSeconds1,
-                                  builder: (context, snapshot) {
-                                    return Text(
-                                      _formattedTime1,
-                                      style: TextStyle(
-                                          fontSize: 20, color: timerColor1),
-                                    );
-                                  },
-                                ),
+                                if (_stopWatchTimer1.isRunning)
+                                  StreamBuilder<int>(
+                                    stream: _stopWatchTimer1.rawTime,
+                                    initialData: totalTimeInSeconds1,
+                                    builder: (context, snapshot) {
+                                      return Text(
+                                        _formattedTime1,
+                                        style: TextStyle(
+                                            fontSize: 20, color: timerColor1),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                           ),
                           ElevatedButton(
+                            onLongPress: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              String? name = prefs.getString('fileName2');
+                              if (!_stopWatchTimer2.isRunning) {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
+                                );
+                                setState(() {
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName2', name!);
+                                    buttonName2 = name!;
+                                  }
+                                });
+                              }
+                            },
                             style: ButtonStyle(
                                 shape: MaterialStatePropertyAll(
                                     RoundedRectangleBorder(
@@ -626,12 +771,15 @@ class _MainScreentate extends State<MainScreen> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const SelectorScreen()),
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
                                 );
                                 setState(() {
-                                  name = result;
-                                  prefs.setString('fileName2', name!);
-                                  buttonName2 = name!;
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName2', name!);
+                                    buttonName2 = name!;
+                                  }
                                 });
                               }
                             },
@@ -648,17 +796,18 @@ class _MainScreentate extends State<MainScreen> {
                                 SizedBox(
                                   width: 20,
                                 ),
-                                StreamBuilder<int>(
-                                  stream: _stopWatchTimer2.rawTime,
-                                  initialData: totalTimeInSeconds2,
-                                  builder: (context, snapshot) {
-                                    return Text(
-                                      _formattedTime2,
-                                      style: TextStyle(
-                                          fontSize: 20, color: timerColor2),
-                                    );
-                                  },
-                                ),
+                                if (_stopWatchTimer2.isRunning)
+                                  StreamBuilder<int>(
+                                    stream: _stopWatchTimer2.rawTime,
+                                    initialData: totalTimeInSeconds2,
+                                    builder: (context, snapshot) {
+                                      return Text(
+                                        _formattedTime2,
+                                        style: TextStyle(
+                                            fontSize: 20, color: timerColor2),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                           ),
@@ -671,6 +820,26 @@ class _MainScreentate extends State<MainScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           ElevatedButton(
+                            onLongPress: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              String? name = prefs.getString('fileName3');
+                              if (!_stopWatchTimer3.isRunning) {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
+                                );
+                                setState(() {
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName3', name!);
+                                    buttonName3 = name!;
+                                  }
+                                });
+                              }
+                            },
                             style: ButtonStyle(
                                 shape: MaterialStatePropertyAll(
                                     RoundedRectangleBorder(
@@ -711,12 +880,15 @@ class _MainScreentate extends State<MainScreen> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const SelectorScreen()),
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
                                 );
                                 setState(() {
-                                  name = result;
-                                  prefs.setString('fileName3', name!);
-                                  buttonName3 = name!;
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName3', name!);
+                                    buttonName3 = name!;
+                                  }
                                 });
                               }
                             },
@@ -733,21 +905,42 @@ class _MainScreentate extends State<MainScreen> {
                                 SizedBox(
                                   width: 20,
                                 ),
-                                StreamBuilder<int>(
-                                  stream: _stopWatchTimer3.rawTime,
-                                  initialData: totalTimeInSeconds3,
-                                  builder: (context, snapshot) {
-                                    return Text(
-                                      _formattedTime3,
-                                      style: TextStyle(
-                                          fontSize: 20, color: timerColor3),
-                                    );
-                                  },
-                                ),
+                                if (_stopWatchTimer3.isRunning)
+                                  StreamBuilder<int>(
+                                    stream: _stopWatchTimer3.rawTime,
+                                    initialData: totalTimeInSeconds3,
+                                    builder: (context, snapshot) {
+                                      return Text(
+                                        _formattedTime3,
+                                        style: TextStyle(
+                                            fontSize: 20, color: timerColor3),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                           ),
                           ElevatedButton(
+                            onLongPress: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              String? name = prefs.getString('fileName4');
+                              if (!_stopWatchTimer4.isRunning) {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
+                                );
+                                setState(() {
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName4', name!);
+                                    buttonName4 = name!;
+                                  }
+                                });
+                              }
+                            },
                             style: ButtonStyle(
                                 shape: MaterialStatePropertyAll(
                                     RoundedRectangleBorder(
@@ -788,12 +981,15 @@ class _MainScreentate extends State<MainScreen> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const SelectorScreen()),
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
                                 );
                                 setState(() {
-                                  name = result;
-                                  prefs.setString('fileName4', name!);
-                                  buttonName4 = name!;
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName4', name!);
+                                    buttonName4 = name!;
+                                  }
                                 });
                               }
                             },
@@ -810,17 +1006,18 @@ class _MainScreentate extends State<MainScreen> {
                                 SizedBox(
                                   width: 20,
                                 ),
-                                StreamBuilder<int>(
-                                  stream: _stopWatchTimer4.rawTime,
-                                  initialData: totalTimeInSeconds4,
-                                  builder: (context, snapshot) {
-                                    return Text(
-                                      _formattedTime4,
-                                      style: TextStyle(
-                                          fontSize: 20, color: timerColor4),
-                                    );
-                                  },
-                                ),
+                                if (_stopWatchTimer4.isRunning)
+                                  StreamBuilder<int>(
+                                    stream: _stopWatchTimer4.rawTime,
+                                    initialData: totalTimeInSeconds4,
+                                    builder: (context, snapshot) {
+                                      return Text(
+                                        _formattedTime4,
+                                        style: TextStyle(
+                                            fontSize: 20, color: timerColor4),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                           ),
@@ -833,6 +1030,26 @@ class _MainScreentate extends State<MainScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           ElevatedButton(
+                            onLongPress: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              String? name = prefs.getString('fileName5');
+                              if (!_stopWatchTimer5.isRunning) {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
+                                );
+                                setState(() {
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName5', name!);
+                                    buttonName5 = name!;
+                                  }
+                                });
+                              }
+                            },
                             style: ButtonStyle(
                                 shape: MaterialStatePropertyAll(
                                     RoundedRectangleBorder(
@@ -873,12 +1090,15 @@ class _MainScreentate extends State<MainScreen> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const SelectorScreen()),
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
                                 );
                                 setState(() {
-                                  name = result;
-                                  prefs.setString('fileName5', name!);
-                                  buttonName5 = name!;
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName5', name!);
+                                    buttonName5 = name!;
+                                  }
                                 });
                               }
                             },
@@ -895,21 +1115,42 @@ class _MainScreentate extends State<MainScreen> {
                                 SizedBox(
                                   width: 20,
                                 ),
-                                StreamBuilder<int>(
-                                  stream: _stopWatchTimer5.rawTime,
-                                  initialData: totalTimeInSeconds5,
-                                  builder: (context, snapshot) {
-                                    return Text(
-                                      _formattedTime5,
-                                      style: TextStyle(
-                                          fontSize: 20, color: timerColor5),
-                                    );
-                                  },
-                                ),
+                                if (_stopWatchTimer5.isRunning)
+                                  StreamBuilder<int>(
+                                    stream: _stopWatchTimer5.rawTime,
+                                    initialData: totalTimeInSeconds5,
+                                    builder: (context, snapshot) {
+                                      return Text(
+                                        _formattedTime5,
+                                        style: TextStyle(
+                                            fontSize: 20, color: timerColor5),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                           ),
                           ElevatedButton(
+                            onLongPress: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              String? name = prefs.getString('fileName6');
+                              if (!_stopWatchTimer6.isRunning) {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
+                                );
+                                setState(() {
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName6', name!);
+                                    buttonName6 = name!;
+                                  }
+                                });
+                              }
+                            },
                             style: ButtonStyle(
                                 shape: MaterialStatePropertyAll(
                                     RoundedRectangleBorder(
@@ -950,12 +1191,15 @@ class _MainScreentate extends State<MainScreen> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const SelectorScreen()),
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
                                 );
                                 setState(() {
-                                  name = result;
-                                  prefs.setString('fileName6', name!);
-                                  buttonName6 = name!;
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileName6', name!);
+                                    buttonName6 = name!;
+                                  }
                                 });
                               }
                             },
@@ -972,17 +1216,18 @@ class _MainScreentate extends State<MainScreen> {
                                 SizedBox(
                                   width: 20,
                                 ),
-                                StreamBuilder<int>(
-                                  stream: _stopWatchTimer6.rawTime,
-                                  initialData: totalTimeInSeconds6,
-                                  builder: (context, snapshot) {
-                                    return Text(
-                                      _formattedTime6,
-                                      style: TextStyle(
-                                          fontSize: 20, color: timerColor6),
-                                    );
-                                  },
-                                ),
+                                if (_stopWatchTimer6.isRunning)
+                                  StreamBuilder<int>(
+                                    stream: _stopWatchTimer6.rawTime,
+                                    initialData: totalTimeInSeconds6,
+                                    builder: (context, snapshot) {
+                                      return Text(
+                                        _formattedTime6,
+                                        style: TextStyle(
+                                            fontSize: 20, color: timerColor6),
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
                           ),
@@ -994,22 +1239,94 @@ class _MainScreentate extends State<MainScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          PrimaryButton(
-                              text: const Text(
-                                'other...',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FontStyle.normal,
-                                    color: Colors.black,
-                                    fontSize: 16),
-                              ),
-                              function: () {
-                                Navigator.push(
+                          ElevatedButton(
+                            style: ButtonStyle(
+                                shape: MaterialStatePropertyAll(
+                                    RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(6))),
+                                padding: const MaterialStatePropertyAll(
+                                    EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 0)),
+                                side: MaterialStateProperty.all<BorderSide>(
+                                    const BorderSide(
+                                  width: 2.0,
+                                )),
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        const Color.fromARGB(255, 0, 0, 0)),
+                                backgroundColor: bgColorOther),
+                            onPressed: () async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              String? name = prefs.getString('fileNameOther');
+                              // ignore: use_build_context_synchronously
+                              if (buttonNameOther != 'other...') {
+                                if (_stopWatchTimerOther.isRunning) {
+                                  bgColorOther =
+                                      MaterialStateProperty.all<Color>(
+                                          Color.fromARGB(255, 255, 255, 255));
+                                  timerColorOther = Colors.black;
+                                  _stopWatchTimerOther.onStopTimer();
+                                  clearText();
+                                  setState(() {
+                                    buttonNameOther = 'other...';
+                                  });
+                                } else {
+                                  bgColorOther =
+                                      MaterialStateProperty.all<Color>(
+                                          Color.fromARGB(255, 171, 211, 251));
+                                  timerColorOther =
+                                      Color.fromARGB(255, 0, 175, 6);
+                                  _startTimerOther();
+                                  _loadSavedText();
+                                }
+                              } else {
+                                // ignore: use_build_context_synchronously
+                                final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const SelectorScreen()),
+                                      builder: (_) =>
+                                          SelectorScreen(timerNames: names)),
                                 );
-                              }),
+                                setState(() {
+                                  if (result != null) {
+                                    name = result;
+                                    prefs.setString('fileNameOther', name!);
+                                    buttonNameOther = name!;
+                                  }
+                                });
+                              }
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  buttonNameOther, // Замените на название вашей кнопки
+                                  style: const TextStyle(
+                                    color: Colors.black, // Цвет текста
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                if (_stopWatchTimerOther.isRunning)
+                                  StreamBuilder<int>(
+                                    stream: _stopWatchTimerOther.rawTime,
+                                    initialData: totalTimeInSecondsOther,
+                                    builder: (context, snapshot) {
+                                      return Text(
+                                        _formattedTimeOther,
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            color: timerColorOther),
+                                      );
+                                    },
+                                  )
+                              ],
+                            ),
+                          )
                         ],
                       ),
                       const SizedBox(
@@ -1018,13 +1335,17 @@ class _MainScreentate extends State<MainScreen> {
                     ],
                   ),
                 ),
+                const Text(
+                    "Press and hold a button when timer is off to configure "),
                 const SizedBox(
                   height: 20,
                 ),
                 CustomTextField(
-                    hintText: 'Additional timelog remark',
-                    controller: textController,
-                    function: _saveText, editingAbility: anyTimerRunning,),
+                  hintText: 'Additional timelog remark',
+                  controller: textController,
+                  function: _saveText,
+                  editingAbility: anyTimerRunning, formKey: null, names: [],
+                ),
                 SizedBox(
                   height: 25,
                 ),
@@ -1079,6 +1400,9 @@ class _MainScreentate extends State<MainScreen> {
                       );
                     },
                   ),
+                ),
+                SizedBox(
+                  height: 20,
                 )
               ],
             ),
