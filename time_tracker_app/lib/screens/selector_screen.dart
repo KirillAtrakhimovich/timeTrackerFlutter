@@ -64,11 +64,12 @@ class _SelectorScreentate extends State<SelectorScreen> {
     var names = prefs.getStringList('names');
     textController.text = '';
     names ??= [];
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Create new activity'),
-          content: SizedBox(
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Create new activity'),
+        content: Flexible(
+          child: SizedBox(
               height: 100,
               child: CustomTextField(
                 hintText: 'Name:',
@@ -78,28 +79,27 @@ class _SelectorScreentate extends State<SelectorScreen> {
                 formKey: _formKey,
                 names: names!,
               )),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  
-                  names!.add(textController.text);
-                  prefs.setStringList('names', names);
-                  setState(() {});
-                  textController.text = '';
-                  names.sort();
-                  initNames();
-                  Navigator.of(context).pop();
-                } else {
-                  return;
-                }
-              },
-              child: const Text('OK'),
-            ),
-          ],
         ),
-      );
-    
+        actions: <Widget>[
+          TextButton(
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                names!.add(textController.text);
+                prefs.setStringList('names', names);
+                setState(() {});
+                textController.text = '';
+                names.sort();
+                initNames();
+                Navigator.of(context).pop();
+              } else {
+                return;
+              }
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   deleteActivity(String name) async {
@@ -123,11 +123,13 @@ class _SelectorScreentate extends State<SelectorScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Edit activity'), // Изменили текст заголовка
-        content: SizedBox(
-          height: 80,
-          child: TextField(
-            controller: textController, // Подключаем контроллер
-            decoration: const InputDecoration(hintText: 'Name:'),
+        content: Flexible(
+          child: SizedBox(
+            height: 100,
+            child: TextField(
+              controller: textController, // Подключаем контроллер
+              decoration: const InputDecoration(hintText: 'Name:'),
+            ),
           ),
         ),
         actions: <Widget>[
@@ -164,8 +166,14 @@ class _SelectorScreentate extends State<SelectorScreen> {
                 Spacer(),
                 IconButton(
                   icon: editModeOff
-                      ? const Icon(Icons.edit_off_rounded,size: 30,)
-                      : const Icon(Icons.edit, size: 30,),
+                      ? const Icon(
+                          Icons.edit_off_rounded,
+                          size: 30,
+                        )
+                      : const Icon(
+                          Icons.edit,
+                          size: 30,
+                        ),
                   onPressed: () {
                     setState(() {
                       editModeOff = !editModeOff;
@@ -205,15 +213,27 @@ class _SelectorScreentate extends State<SelectorScreen> {
                             SizedBox(
                                 width: MediaQuery.of(context).size.width / 15),
                             SizedBox(
-                              width: MediaQuery.of(context).size.width / 2,
-                              child: ElevatedButton(
+                              width: MediaQuery.of(context).size.width  - MediaQuery.of(context).size.width / 8,
+                              child: TextButton(
+
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black,
+                                    textStyle: TextStyle(fontSize: 18,  fontWeight: FontWeight.bold),
+                                  ),
                                   onPressed: () async {
                                     Navigator.pop(context, filteredList[index]);
                                     await filteredList.removeAt(index);
                                   },
-                                  child: Text(filteredList[index],
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1)),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Flexible(
+                                        child: Text(filteredList[index],
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1),
+                                      ),
+                                    ],
+                                  )),
                             ),
                           ],
                         ),
@@ -236,13 +256,26 @@ class _SelectorScreentate extends State<SelectorScreen> {
                                 width: MediaQuery.of(context).size.width / 15),
                             SizedBox(
                               width: MediaQuery.of(context).size.width / 2,
-                              child: ElevatedButton(
-                                  onPressed: () {
+                              child: TextButton(
+
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black,
+                                    textStyle: TextStyle(fontSize: 18,  fontWeight: FontWeight.bold),
+                                  ),
+                                  onPressed: () async {
                                     Navigator.pop(context, filteredList[index]);
+                                    await filteredList.removeAt(index);
                                   },
-                                  child: Text(filteredList[index],
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1)),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Flexible(
+                                        child: Text(filteredList[index],
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1),
+                                      ),
+                                    ],
+                                  )),
                             ),
                             SizedBox(
                                 width: MediaQuery.of(context).size.width / 12),
