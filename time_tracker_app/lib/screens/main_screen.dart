@@ -80,15 +80,45 @@ class _MainScreentate extends State<MainScreen> {
           const Color.fromARGB(255, 255, 255, 255));
   Color? timerColorOther = Colors.black;
   bool anyTimerRunning = false;
+  List<String> activeTimers = [];
+  List<String> activeNames = [];
 
   @override
   void initState() {
     super.initState();
+
     checkFirstTimeRun();
     _loadButtonNameFromPrefs();
     loadTimers();
     convertTimes();
   }
+
+//  checkActiveTimers() {
+//   setState(() {
+
+//     for (int i = 0; i < timers.length; i++) {
+//       if (timers[i] != "00:00" ) {
+//         activeTimers.add(timers[i]);
+//       }
+//     }
+//   });
+
+//   }
+
+  // checkActiveNames() {
+  //   setState(() {
+  //     activeNames.add(names.last);
+  //   for (int i = 0; i < names.length; i++) {
+  //     print(names.last);
+
+  //     if (names[i] != "<empty>") {
+  //       activeNames.add(names[i]);
+  //     }
+  //   }
+
+  //   });
+
+  // }
 
   void _loadSavedText() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -104,7 +134,6 @@ class _MainScreentate extends State<MainScreen> {
       }
       setState(() {
         if (anyTimerRunning) {
-          
           String? savedText = prefs.getString('savedText');
           savedText ??= '';
           textController.text = savedText; // Устанавливаем сохраненный текст
@@ -234,74 +263,74 @@ class _MainScreentate extends State<MainScreen> {
     });
   }
 
-  loadTimer1() async{
+  loadTimer1() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? timer1 = prefs.getString('timer1');
     if (timer1 != null) {
-    setState(() {
-      _formattedTime1 = timer1;
-    });
-   }
+      setState(() {
+        _formattedTime1 = timer1;
+      });
+    }
   }
 
-  loadTimer2() async{
+  loadTimer2() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? timer2 = prefs.getString('timer2');
     if (timer2 != null) {
-    setState(() {
-      _formattedTime2 = timer2;
-    });
-   }
+      setState(() {
+        _formattedTime2 = timer2;
+      });
+    }
   }
 
-  loadTimer3() async{
+  loadTimer3() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? timer3 = prefs.getString('timer3');
     if (timer3 != null) {
-    setState(() {
-      _formattedTime3 = timer3;
-    });
-   }
+      setState(() {
+        _formattedTime3 = timer3;
+      });
+    }
   }
 
-  loadTimer4() async{
+  loadTimer4() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? timer4 = prefs.getString('timer4');
     if (timer4 != null) {
-    setState(() {
-      _formattedTime4 = timer4;
-    });
-   }
+      setState(() {
+        _formattedTime4 = timer4;
+      });
+    }
   }
 
-  loadTimer5() async{
+  loadTimer5() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? timer5 = prefs.getString('timer5');
     if (timer5 != null) {
-    setState(() {
-      _formattedTime5 = timer5;
-    });
-   }
+      setState(() {
+        _formattedTime5 = timer5;
+      });
+    }
   }
 
-  loadTimer6() async{
+  loadTimer6() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? timer6 = prefs.getString('timer6');
     if (timer6 != null) {
-    setState(() {
-      _formattedTime6 = timer6;
-    });
-   }
+      setState(() {
+        _formattedTime6 = timer6;
+      });
+    }
   }
 
-  loadTimerOther() async{
+  loadTimerOther() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? timerOther = prefs.getString('timerOther');
-    if (timerOther  != null) {
-    setState(() {
-      _formattedTimeOther  = timerOther ;
-    });
-   }
+    if (timerOther != null) {
+      setState(() {
+        _formattedTimeOther = timerOther;
+      });
+    }
   }
 
   void loadTimers() async {
@@ -312,6 +341,8 @@ class _MainScreentate extends State<MainScreen> {
     loadTimer5();
     loadTimer6();
     loadTimerOther();
+    //  checkActiveNames();
+    //  checkActiveTimers();
   }
 
   void _startTimer1() async {
@@ -573,6 +604,7 @@ class _MainScreentate extends State<MainScreen> {
       buttonName6,
       buttonNameOther
     ];
+
     List<String> timers = [
       _formattedTime1,
       _formattedTime2,
@@ -582,6 +614,17 @@ class _MainScreentate extends State<MainScreen> {
       _formattedTime6,
       _formattedTimeOther
     ];
+
+    List<String> filteredNames = [];
+List<String> filteredTimers = [];
+
+for (int i = 0; i < timers.length; i++) {
+  if (timers[i] != "00:00") {
+    filteredNames.add(names[i]);
+    filteredTimers.add(timers[i]);
+  }
+}
+
     return Scaffold(
         body: SafeArea(
       child: IntrinsicHeight(
@@ -609,722 +652,901 @@ class _MainScreentate extends State<MainScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          ElevatedButton(
-                            onLongPress: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName1');
-                              if (!_stopWatchTimer1.isRunning) {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName1', name!);
-                                    buttonName1 = name!;
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2.5,
+                            child: ElevatedButton(
+                                onLongPress: () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  String? name = prefs.getString('fileName1');
+                                  if (!_stopWatchTimer1.isRunning) {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => SelectorScreen(
+                                              timerNames: names)),
+                                    );
+                                    setState(() {
+                                      if (result != null) {
+                                        name = result;
+                                        prefs.setString('fileName1', name!);
+                                        buttonName1 = name!;
+                                      }
+                                    });
                                   }
-                                });
-                              }
-                            },
-                            style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6))),
-                                padding: const MaterialStatePropertyAll(
-                                    EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 0)),
-                                side: MaterialStateProperty.all<BorderSide>(
-                                    const BorderSide(
-                                  width: 2.0,
-                                )),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        const Color.fromARGB(255, 0, 0, 0)),
-                                backgroundColor: bgColor1),
-                            onPressed: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName1');
-                              // ignore: use_build_context_synchronously
-                              if (buttonName1 != '<empty>') {
-                                if (_stopWatchTimer1.isRunning) {
-                                  bgColor1 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 255, 255, 255));
-                                  timerColor1 = Colors.black;
-                                  _stopWatchTimer1.onStopTimer();
-                                  clearText();
-                                } else {
-                                  bgColor1 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 171, 211, 251));
-                                  timerColor1 = Color.fromARGB(255, 0, 175, 6);
-                                  _startTimer1();
-                                  _loadSavedText();
-                                }
-                              } else {
-                                // ignore: use_build_context_synchronously
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName1', name!);
-                                    buttonName1 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Text(
-                                  buttonName1, // Замените на название вашей кнопки
-                                  style: TextStyle(
-                                    color: Colors.black, // Цвет текста
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                if (_stopWatchTimer1.isRunning)
-                                  StreamBuilder<int>(
-                                    stream: _stopWatchTimer1.rawTime,
-                                    initialData: totalTimeInSeconds1,
-                                    builder: (context, snapshot) {
-                                      return Text(
-                                        _formattedTime1,
-                                        style: TextStyle(
-                                            fontSize: 20, color: timerColor1),
-                                      );
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
-                          ElevatedButton(
-                            onLongPress: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName2');
-                              if (!_stopWatchTimer2.isRunning) {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName2', name!);
-                                    buttonName2 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6))),
-                                padding: const MaterialStatePropertyAll(
-                                    EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 0)),
-                                side: MaterialStateProperty.all<BorderSide>(
-                                    const BorderSide(
-                                  width: 2.0,
-                                )),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        const Color.fromARGB(255, 0, 0, 0)),
-                                backgroundColor: bgColor2),
-                            onPressed: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName2');
-                              // ignore: use_build_context_synchronously
-                              if (buttonName2 != '<empty>') {
-                                if (_stopWatchTimer2.isRunning) {
-                                  bgColor2 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 255, 255, 255));
-                                  timerColor2 = Colors.black;
-                                  _stopWatchTimer2.onStopTimer();
-                                  clearText();
-                                } else {
-                                  bgColor2 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 171, 211, 251));
-                                  timerColor2 = Color.fromARGB(255, 0, 175, 6);
-                                  _startTimer2();
-                                  _loadSavedText();
-                                }
-                              } else {
-                                // ignore: use_build_context_synchronously
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName2', name!);
-                                    buttonName2 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Text(
-                                  buttonName2, // Замените на название вашей кнопки
-                                  style: TextStyle(
-                                    color: Colors.black, // Цвет текста
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                if (_stopWatchTimer2.isRunning)
-                                  StreamBuilder<int>(
-                                    stream: _stopWatchTimer2.rawTime,
-                                    initialData: totalTimeInSeconds2,
-                                    builder: (context, snapshot) {
-                                      return Text(
-                                        _formattedTime2,
-                                        style: TextStyle(
-                                            fontSize: 20, color: timerColor2),
-                                      );
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          ElevatedButton(
-                            onLongPress: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName3');
-                              if (!_stopWatchTimer3.isRunning) {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName3', name!);
-                                    buttonName3 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6))),
-                                padding: const MaterialStatePropertyAll(
-                                    EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 0)),
-                                side: MaterialStateProperty.all<BorderSide>(
-                                    const BorderSide(
-                                  width: 2.0,
-                                )),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        const Color.fromARGB(255, 0, 0, 0)),
-                                backgroundColor: bgColor3),
-                            onPressed: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName3');
-                              // ignore: use_build_context_synchronously
-                              if (buttonName3 != '<empty>') {
-                                if (_stopWatchTimer3.isRunning) {
-                                  bgColor3 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 255, 255, 255));
-                                  timerColor3 = Colors.black;
-                                  _stopWatchTimer3.onStopTimer();
-                                  clearText();
-                                } else {
-                                  bgColor3 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 171, 211, 251));
-                                  timerColor3 = Color.fromARGB(255, 0, 175, 6);
-                                  _startTimer3();
-                                  _loadSavedText();
-                                }
-                              } else {
-                                // ignore: use_build_context_synchronously
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName3', name!);
-                                    buttonName3 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Text(
-                                  buttonName3, // Замените на название вашей кнопки
-                                  style: TextStyle(
-                                    color: Colors.black, // Цвет текста
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                if (_stopWatchTimer3.isRunning)
-                                  StreamBuilder<int>(
-                                    stream: _stopWatchTimer3.rawTime,
-                                    initialData: totalTimeInSeconds3,
-                                    builder: (context, snapshot) {
-                                      return Text(
-                                        _formattedTime3,
-                                        style: TextStyle(
-                                            fontSize: 20, color: timerColor3),
-                                      );
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
-                          ElevatedButton(
-                            onLongPress: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName4');
-                              if (!_stopWatchTimer4.isRunning) {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName4', name!);
-                                    buttonName4 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6))),
-                                padding: const MaterialStatePropertyAll(
-                                    EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 0)),
-                                side: MaterialStateProperty.all<BorderSide>(
-                                    const BorderSide(
-                                  width: 2.0,
-                                )),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        const Color.fromARGB(255, 0, 0, 0)),
-                                backgroundColor: bgColor4),
-                            onPressed: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName4');
-                              // ignore: use_build_context_synchronously
-                              if (buttonName4 != '<empty>') {
-                                if (_stopWatchTimer4.isRunning) {
-                                  bgColor4 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 255, 255, 255));
-                                  timerColor4 = Colors.black;
-                                  _stopWatchTimer4.onStopTimer();
-                                  clearText();
-                                } else {
-                                  bgColor4 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 171, 211, 251));
-                                  timerColor4 = Color.fromARGB(255, 0, 175, 6);
-                                  _startTimer4();
-                                  _loadSavedText();
-                                }
-                              } else {
-                                // ignore: use_build_context_synchronously
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName4', name!);
-                                    buttonName4 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Text(
-                                  buttonName4, // Замените на название вашей кнопки
-                                  style: TextStyle(
-                                    color: Colors.black, // Цвет текста
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                if (_stopWatchTimer4.isRunning)
-                                  StreamBuilder<int>(
-                                    stream: _stopWatchTimer4.rawTime,
-                                    initialData: totalTimeInSeconds4,
-                                    builder: (context, snapshot) {
-                                      return Text(
-                                        _formattedTime4,
-                                        style: TextStyle(
-                                            fontSize: 20, color: timerColor4),
-                                      );
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          ElevatedButton(
-                            onLongPress: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName5');
-                              if (!_stopWatchTimer5.isRunning) {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName5', name!);
-                                    buttonName5 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6))),
-                                padding: const MaterialStatePropertyAll(
-                                    EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 0)),
-                                side: MaterialStateProperty.all<BorderSide>(
-                                    const BorderSide(
-                                  width: 2.0,
-                                )),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        const Color.fromARGB(255, 0, 0, 0)),
-                                backgroundColor: bgColor5),
-                            onPressed: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName5');
-                              // ignore: use_build_context_synchronously
-                              if (buttonName5 != '<empty>') {
-                                if (_stopWatchTimer5.isRunning) {
-                                  bgColor5 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 255, 255, 255));
-                                  timerColor5 = Colors.black;
-                                  _stopWatchTimer5.onStopTimer();
-                                  clearText();
-                                } else {
-                                  bgColor5 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 171, 211, 251));
-                                  timerColor5 = Color.fromARGB(255, 0, 175, 6);
-                                  _startTimer5();
-                                  _loadSavedText();
-                                }
-                              } else {
-                                // ignore: use_build_context_synchronously
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName5', name!);
-                                    buttonName5 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Text(
-                                  buttonName5, // Замените на название вашей кнопки
-                                  style: TextStyle(
-                                    color: Colors.black, // Цвет текста
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                if (_stopWatchTimer5.isRunning)
-                                  StreamBuilder<int>(
-                                    stream: _stopWatchTimer5.rawTime,
-                                    initialData: totalTimeInSeconds5,
-                                    builder: (context, snapshot) {
-                                      return Text(
-                                        _formattedTime5,
-                                        style: TextStyle(
-                                            fontSize: 20, color: timerColor5),
-                                      );
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
-                          ElevatedButton(
-                            onLongPress: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName6');
-                              if (!_stopWatchTimer6.isRunning) {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName6', name!);
-                                    buttonName6 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6))),
-                                padding: const MaterialStatePropertyAll(
-                                    EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 0)),
-                                side: MaterialStateProperty.all<BorderSide>(
-                                    const BorderSide(
-                                  width: 2.0,
-                                )),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        const Color.fromARGB(255, 0, 0, 0)),
-                                backgroundColor: bgColor6),
-                            onPressed: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileName6');
-                              // ignore: use_build_context_synchronously
-                              if (buttonName6 != '<empty>') {
-                                if (_stopWatchTimer6.isRunning) {
-                                  bgColor6 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 255, 255, 255));
-                                  timerColor6 = Colors.black;
-                                  _stopWatchTimer6.onStopTimer();
-                                  clearText();
-                                } else {
-                                  bgColor6 = MaterialStateProperty.all<Color>(
-                                      Color.fromARGB(255, 171, 211, 251));
-                                  timerColor6 = Color.fromARGB(255, 0, 175, 6);
-                                  _startTimer6();
-                                  _loadSavedText();
-                                }
-                              } else {
-                                // ignore: use_build_context_synchronously
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileName6', name!);
-                                    buttonName6 = name!;
-                                  }
-                                });
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Text(
-                                  buttonName6, // Замените на название вашей кнопки
-                                  style: TextStyle(
-                                    color: Colors.black, // Цвет текста
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                if (_stopWatchTimer6.isRunning)
-                                  StreamBuilder<int>(
-                                    stream: _stopWatchTimer6.rawTime,
-                                    initialData: totalTimeInSeconds6,
-                                    builder: (context, snapshot) {
-                                      return Text(
-                                        _formattedTime6,
-                                        style: TextStyle(
-                                            fontSize: 20, color: timerColor6),
-                                      );
-                                    },
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          ElevatedButton(
-                            style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6))),
-                                padding: const MaterialStatePropertyAll(
-                                    EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 0)),
-                                side: MaterialStateProperty.all<BorderSide>(
-                                    const BorderSide(
-                                  width: 2.0,
-                                )),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        const Color.fromARGB(255, 0, 0, 0)),
-                                backgroundColor: bgColorOther),
-                            onPressed: () async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? name = prefs.getString('fileNameOther');
-                              // ignore: use_build_context_synchronously
-                              if (buttonNameOther != 'other...') {
-                                if (_stopWatchTimerOther.isRunning) {
-                                  bgColorOther =
-                                      MaterialStateProperty.all<Color>(
+                                },
+                                style: ButtonStyle(
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(6))),
+                                   
+                                    side: MaterialStateProperty.all<BorderSide>(
+                                        const BorderSide(
+                                      width: 2.0,
+                                    )),
+                                    foregroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            const Color.fromARGB(255, 0, 0, 0)),
+                                    backgroundColor: bgColor1),
+                                onPressed: () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  String? name = prefs.getString('fileName1');
+                                  // ignore: use_build_context_synchronously
+                                  if (buttonName1 != '<empty>') {
+                                    if (_stopWatchTimer1.isRunning) {
+                                      bgColor1 = MaterialStateProperty.all<
+                                              Color>(
                                           Color.fromARGB(255, 255, 255, 255));
-                                  timerColorOther = Colors.black;
-                                  _stopWatchTimerOther.onStopTimer();
-                                  clearText();
-                                  setState(() {
-                                    buttonNameOther = 'other...';
-                                  });
-                                } else {
-                                  bgColorOther =
-                                      MaterialStateProperty.all<Color>(
+                                      timerColor1 = Colors.black;
+                                      _stopWatchTimer1.onStopTimer();
+                                      clearText();
+                                    } else {
+                                      bgColor1 = MaterialStateProperty.all<
+                                              Color>(
                                           Color.fromARGB(255, 171, 211, 251));
-                                  timerColorOther =
-                                      Color.fromARGB(255, 0, 175, 6);
-                                  _startTimerOther();
-                                  _loadSavedText();
-                                }
-                              } else {
-                                // ignore: use_build_context_synchronously
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          SelectorScreen(timerNames: names)),
-                                );
-                                setState(() {
-                                  if (result != null) {
-                                    name = result;
-                                    prefs.setString('fileNameOther', name!);
-                                    buttonNameOther = name!;
+                                      timerColor1 =
+                                          Color.fromARGB(255, 0, 175, 6);
+                                      _startTimer1();
+                                      _loadSavedText();
+                                    }
+                                  } else {
+                                    // ignore: use_build_context_synchronously
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => SelectorScreen(
+                                              timerNames: names)),
+                                    );
+                                    setState(() {
+                                      if (result != null) {
+                                        name = result;
+                                        prefs.setString('fileName1', name!);
+                                        buttonName1 = name!;
+                                      }
+                                    });
                                   }
-                                });
-                              }
-                            },
-                            child: Row(
-                              children: [
-                                Text(
-                                  buttonNameOther, // Замените на название вашей кнопки
-                                  style: const TextStyle(
-                                    color: Colors.black, // Цвет текста
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 20,
-                                ),
-                                if (_stopWatchTimerOther.isRunning)
-                                  StreamBuilder<int>(
-                                    stream: _stopWatchTimerOther.rawTime,
-                                    initialData: totalTimeInSecondsOther,
-                                    builder: (context, snapshot) {
-                                      return Text(
-                                        _formattedTimeOther,
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            color: timerColorOther),
-                                      );
-                                    },
-                                  )
-                              ],
+                                },
+                                child: _stopWatchTimer1.isRunning
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              buttonName1,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          StreamBuilder<int>(
+                                            stream: _stopWatchTimer1.rawTime,
+                                            initialData: totalTimeInSeconds1,
+                                            builder: (context, snapshot) {
+                                              return Text(
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                _formattedTime1,
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: timerColor1),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName1, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2.5,
+                            child: ElevatedButton(
+                                onLongPress: () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  String? name = prefs.getString('fileName2');
+                                  if (!_stopWatchTimer2.isRunning) {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => SelectorScreen(
+                                              timerNames: names)),
+                                    );
+                                    setState(() {
+                                      if (result != null) {
+                                        name = result;
+                                        prefs.setString('fileName2', name!);
+                                        buttonName2 = name!;
+                                      }
+                                    });
+                                  }
+                                },
+                                style: ButtonStyle(
+                                    shape: MaterialStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(6))),
+                                    side: MaterialStateProperty.all<BorderSide>(
+                                        const BorderSide(
+                                      width: 2.0,
+                                    )),
+                                    foregroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                            const Color.fromARGB(255, 0, 0, 0)),
+                                    backgroundColor: bgColor2),
+                                onPressed: () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  String? name = prefs.getString('fileName2');
+                                  // ignore: use_build_context_synchronously
+                                  if (buttonName2 != '<empty>') {
+                                    if (_stopWatchTimer2.isRunning) {
+                                      bgColor2 = MaterialStateProperty.all<
+                                              Color>(
+                                          Color.fromARGB(255, 255, 255, 255));
+                                      timerColor2 = Colors.black;
+                                      _stopWatchTimer2.onStopTimer();
+                                      clearText();
+                                    } else {
+                                      bgColor2 = MaterialStateProperty.all<
+                                              Color>(
+                                          Color.fromARGB(255, 171, 211, 251));
+                                      timerColor2 =
+                                          Color.fromARGB(255, 0, 175, 6);
+                                      _startTimer2();
+                                      _loadSavedText();
+                                    }
+                                  } else {
+                                    // ignore: use_build_context_synchronously
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => SelectorScreen(
+                                              timerNames: names)),
+                                    );
+                                    setState(() {
+                                      if (result != null) {
+                                        name = result;
+                                        prefs.setString('fileName2', name!);
+                                        buttonName2 = name!;
+                                      }
+                                    });
+                                  }
+                                },
+                                child: _stopWatchTimer2.isRunning
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName2, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          StreamBuilder<int>(
+                                            stream: _stopWatchTimer2.rawTime,
+                                            initialData: totalTimeInSeconds2,
+                                            builder: (context, snapshot) {
+                                              return Text(
+                                                _formattedTime2,
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: timerColor2),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName2, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2.5,
+                            child: ElevatedButton(
+                              onLongPress: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? name = prefs.getString('fileName3');
+                                if (!_stopWatchTimer3.isRunning) {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            SelectorScreen(timerNames: names)),
+                                  );
+                                  setState(() {
+                                    if (result != null) {
+                                      name = result;
+                                      prefs.setString('fileName3', name!);
+                                      buttonName3 = name!;
+                                    }
+                                  });
+                                }
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStatePropertyAll(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6))),
+                                
+                                  side: MaterialStateProperty.all<BorderSide>(
+                                      const BorderSide(
+                                    width: 2.0,
+                                  )),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          const Color.fromARGB(255, 0, 0, 0)),
+                                  backgroundColor: bgColor3),
+                              onPressed: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? name = prefs.getString('fileName3');
+                                // ignore: use_build_context_synchronously
+                                if (buttonName3 != '<empty>') {
+                                  if (_stopWatchTimer3.isRunning) {
+                                    bgColor3 = MaterialStateProperty.all<Color>(
+                                        Color.fromARGB(255, 255, 255, 255));
+                                    timerColor3 = Colors.black;
+                                    _stopWatchTimer3.onStopTimer();
+                                    clearText();
+                                  } else {
+                                    bgColor3 = MaterialStateProperty.all<Color>(
+                                        Color.fromARGB(255, 171, 211, 251));
+                                    timerColor3 = Color.fromARGB(255, 0, 175, 6);
+                                    _startTimer3();
+                                    _loadSavedText();
+                                  }
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            SelectorScreen(timerNames: names)),
+                                  );
+                                  setState(() {
+                                    if (result != null) {
+                                      name = result;
+                                      prefs.setString('fileName3', name!);
+                                      buttonName3 = name!;
+                                    }
+                                  });
+                                }
+                              },
+                              child: _stopWatchTimer3.isRunning
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName3, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          StreamBuilder<int>(
+                                            stream: _stopWatchTimer3.rawTime,
+                                            initialData: totalTimeInSeconds3,
+                                            builder: (context, snapshot) {
+                                              return Text(
+                                                _formattedTime3,
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: timerColor3),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName3, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                            ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2.5,
+                            child: ElevatedButton(
+                              onLongPress: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? name = prefs.getString('fileName4');
+                                if (!_stopWatchTimer4.isRunning) {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            SelectorScreen(timerNames: names)),
+                                  );
+                                  setState(() {
+                                    if (result != null) {
+                                      name = result;
+                                      prefs.setString('fileName4', name!);
+                                      buttonName4 = name!;
+                                    }
+                                  });
+                                }
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStatePropertyAll(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6))),
+                               
+                                  side: MaterialStateProperty.all<BorderSide>(
+                                      const BorderSide(
+                                    width: 2.0,
+                                  )),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          const Color.fromARGB(255, 0, 0, 0)),
+                                  backgroundColor: bgColor4),
+                              onPressed: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? name = prefs.getString('fileName4');
+                                // ignore: use_build_context_synchronously
+                                if (buttonName4 != '<empty>') {
+                                  if (_stopWatchTimer4.isRunning) {
+                                    bgColor4 = MaterialStateProperty.all<Color>(
+                                        Color.fromARGB(255, 255, 255, 255));
+                                    timerColor4 = Colors.black;
+                                    _stopWatchTimer4.onStopTimer();
+                                    clearText();
+                                  } else {
+                                    bgColor4 = MaterialStateProperty.all<Color>(
+                                        Color.fromARGB(255, 171, 211, 251));
+                                    timerColor4 = Color.fromARGB(255, 0, 175, 6);
+                                    _startTimer4();
+                                    _loadSavedText();
+                                  }
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            SelectorScreen(timerNames: names)),
+                                  );
+                                  setState(() {
+                                    if (result != null) {
+                                      name = result;
+                                      prefs.setString('fileName4', name!);
+                                      buttonName4 = name!;
+                                    }
+                                  });
+                                }
+                              },
+                              child: _stopWatchTimer4.isRunning
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName4, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          StreamBuilder<int>(
+                                            stream: _stopWatchTimer4.rawTime,
+                                            initialData: totalTimeInSeconds4,
+                                            builder: (context, snapshot) {
+                                              return Text(
+                                                _formattedTime4,
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: timerColor4),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName4, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2.5,
+                            child: ElevatedButton(
+                              onLongPress: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? name = prefs.getString('fileName5');
+                                if (!_stopWatchTimer5.isRunning) {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            SelectorScreen(timerNames: names)),
+                                  );
+                                  setState(() {
+                                    if (result != null) {
+                                      name = result;
+                                      prefs.setString('fileName5', name!);
+                                      buttonName5 = name!;
+                                    }
+                                  });
+                                }
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStatePropertyAll(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6))),
+                                 
+                                  side: MaterialStateProperty.all<BorderSide>(
+                                      const BorderSide(
+                                    width: 2.0,
+                                  )),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          const Color.fromARGB(255, 0, 0, 0)),
+                                  backgroundColor: bgColor5),
+                              onPressed: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? name = prefs.getString('fileName5');
+                                // ignore: use_build_context_synchronously
+                                if (buttonName5 != '<empty>') {
+                                  if (_stopWatchTimer5.isRunning) {
+                                    bgColor5 = MaterialStateProperty.all<Color>(
+                                        Color.fromARGB(255, 255, 255, 255));
+                                    timerColor5 = Colors.black;
+                                    _stopWatchTimer5.onStopTimer();
+                                    clearText();
+                                  } else {
+                                    bgColor5 = MaterialStateProperty.all<Color>(
+                                        Color.fromARGB(255, 171, 211, 251));
+                                    timerColor5 = Color.fromARGB(255, 0, 175, 6);
+                                    _startTimer5();
+                                    _loadSavedText();
+                                  }
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            SelectorScreen(timerNames: names)),
+                                  );
+                                  setState(() {
+                                    if (result != null) {
+                                      name = result;
+                                      prefs.setString('fileName5', name!);
+                                      buttonName5 = name!;
+                                    }
+                                  });
+                                }
+                              },
+                              child: _stopWatchTimer5.isRunning
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName5, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          StreamBuilder<int>(
+                                            stream: _stopWatchTimer5.rawTime,
+                                            initialData: totalTimeInSeconds5,
+                                            builder: (context, snapshot) {
+                                              return Text(
+                                                _formattedTime2,
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: timerColor5),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName5, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                            ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2.5,
+                            child: ElevatedButton(
+                              onLongPress: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? name = prefs.getString('fileName6');
+                                if (!_stopWatchTimer6.isRunning) {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            SelectorScreen(timerNames: names)),
+                                  );
+                                  setState(() {
+                                    if (result != null) {
+                                      name = result;
+                                      prefs.setString('fileName6', name!);
+                                      buttonName6 = name!;
+                                    }
+                                  });
+                                }
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStatePropertyAll(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6))),
+                                 
+                                  side: MaterialStateProperty.all<BorderSide>(
+                                      const BorderSide(
+                                    width: 2.0,
+                                  )),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          const Color.fromARGB(255, 0, 0, 0)),
+                                  backgroundColor: bgColor6),
+                              onPressed: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? name = prefs.getString('fileName6');
+                                // ignore: use_build_context_synchronously
+                                if (buttonName6 != '<empty>') {
+                                  if (_stopWatchTimer6.isRunning) {
+                                    bgColor6 = MaterialStateProperty.all<Color>(
+                                        Color.fromARGB(255, 255, 255, 255));
+                                    timerColor6 = Colors.black;
+                                    _stopWatchTimer6.onStopTimer();
+                                    clearText();
+                                  } else {
+                                    bgColor6 = MaterialStateProperty.all<Color>(
+                                        Color.fromARGB(255, 171, 211, 251));
+                                    timerColor6 = Color.fromARGB(255, 0, 175, 6);
+                                    _startTimer6();
+                                    _loadSavedText();
+                                  }
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            SelectorScreen(timerNames: names)),
+                                  );
+                                  setState(() {
+                                    if (result != null) {
+                                      name = result;
+                                      prefs.setString('fileName6', name!);
+                                      buttonName6 = name!;
+                                    }
+                                  });
+                                }
+                              },
+                              child: _stopWatchTimer6.isRunning
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName6, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          StreamBuilder<int>(
+                                            stream: _stopWatchTimer6.rawTime,
+                                            initialData: totalTimeInSeconds6,
+                                            builder: (context, snapshot) {
+                                              return Text(
+                                                _formattedTime6,
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: timerColor6),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonName6, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2.5,
+                            child: ElevatedButton(
+                              style: ButtonStyle(
+                                  shape: MaterialStatePropertyAll(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(6))),
+                                 
+                                  side: MaterialStateProperty.all<BorderSide>(
+                                      const BorderSide(
+                                    width: 2.0,
+                                  )),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          const Color.fromARGB(255, 0, 0, 0)),
+                                  backgroundColor: bgColorOther),
+                              onPressed: () async {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? name = prefs.getString('fileNameOther');
+                                // ignore: use_build_context_synchronously
+                                if (buttonNameOther != 'other...') {
+                                  if (_stopWatchTimerOther.isRunning) {
+                                    bgColorOther =
+                                        MaterialStateProperty.all<Color>(
+                                            Color.fromARGB(255, 255, 255, 255));
+                                    timerColorOther = Colors.black;
+                                    _stopWatchTimerOther.onStopTimer();
+                                    clearText();
+                                    setState(() {
+                                      buttonNameOther = 'other...';
+                                    });
+                                  } else {
+                                    bgColorOther =
+                                        MaterialStateProperty.all<Color>(
+                                            Color.fromARGB(255, 171, 211, 251));
+                                    timerColorOther =
+                                        Color.fromARGB(255, 0, 175, 6);
+                                    _startTimerOther();
+                                    _loadSavedText();
+                                  }
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            SelectorScreen(timerNames: names)),
+                                  );
+                                  setState(() {
+                                    if (result != null) {
+                                      name = result;
+                                      prefs.setString('fileNameOther', name!);
+                                      buttonNameOther = name!;
+                                    }
+                                  });
+                                }
+                              },
+                              child: _stopWatchTimerOther.isRunning
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonNameOther, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          StreamBuilder<int>(
+                                            stream: _stopWatchTimerOther.rawTime,
+                                            initialData: totalTimeInSecondsOther,
+                                            builder: (context, snapshot) {
+                                              return Text(
+                                                _formattedTimeOther,
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: timerColorOther),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              buttonNameOther, // Замените на название вашей кнопки
+                                              style: TextStyle(
+                                                color:
+                                                    Colors.black, // Цвет текста
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
                             ),
                           )
                         ],
@@ -1344,7 +1566,9 @@ class _MainScreentate extends State<MainScreen> {
                   hintText: 'Additional timelog remark',
                   controller: textController,
                   function: _saveText,
-                  editingAbility: anyTimerRunning, formKey: null, names: [],
+                  editingAbility: anyTimerRunning,
+                  formKey: null,
+                  names: [],
                 ),
                 SizedBox(
                   height: 25,
@@ -1373,8 +1597,7 @@ class _MainScreentate extends State<MainScreen> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   child: ListView.builder(
-                    itemCount: names
-                        .length, // Замените на количество элементов в вашем списке данных
+                    itemCount: filteredNames.length,
                     itemBuilder: (context, index) {
                       return Column(
                         children: [
@@ -1383,11 +1606,12 @@ class _MainScreentate extends State<MainScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(names[index]),
-                                Text(
-                                  timers[
-                                      index], // Замените на данные из второй колонки
-                                ),
+                                Text(filteredNames[index]
+                                  
+                                    ),
+                                Text(filteredTimers[index]
+                                  
+                                    ),
                               ],
                             ),
                           ),
