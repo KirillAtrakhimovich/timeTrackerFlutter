@@ -2,14 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:time_tracker_app/screens/edit_screen.dart';
-import 'package:time_tracker_app/screens/main_screen.dart';
-import 'package:time_tracker_app/screens/reports_screen.dart';
-import 'package:time_tracker_app/screens/settings_screen.dart';
-import 'package:time_tracker_app/widgets/bottom_navigation_bar.dart';
+
 import 'package:time_tracker_app/widgets/primary_button.dart';
 import 'package:time_tracker_app/widgets/text_field.dart';
 
+// ignore: must_be_immutable
 class SelectorScreen extends StatefulWidget {
   List<String> timerNames;
   SelectorScreen({super.key, required this.timerNames});
@@ -46,8 +43,6 @@ class _SelectorScreentate extends State<SelectorScreen> {
         filteredList =
             names.where((item) => !widget.timerNames.contains(item)).toList();
       });
-      print('saved names: $names');
-      print('filtered list $filteredList');
     }
   }
 
@@ -68,18 +63,16 @@ class _SelectorScreentate extends State<SelectorScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Create new activity'),
-        content: Flexible(
-          child: SizedBox(
-              height: 100,
-              child: CustomTextField(
-                hintText: 'Name:',
-                controller: textController,
-                function: null,
-                editingAbility: null,
-                formKey: _formKey,
-                names: names!,
-              )),
-        ),
+        content: SizedBox(
+            height: 100,
+            child: CustomTextField(
+              hintText: 'Name:',
+              controller: textController,
+              function: null,
+              editingAbility: null,
+              formKey: _formKey,
+              names: names!,
+            )),
         actions: <Widget>[
           TextButton(
             onPressed: () async {
@@ -89,7 +82,7 @@ class _SelectorScreentate extends State<SelectorScreen> {
                 setState(() {});
                 textController.text = '';
                 names.sort();
-                initNames();
+                updateNames(names);
                 Navigator.of(context).pop();
               } else {
                 return;
@@ -108,7 +101,7 @@ class _SelectorScreentate extends State<SelectorScreen> {
     if (names != null) {
       setState(() {
         names.removeWhere((element) => element == name);
-        initNames();
+        updateNames(names);
       });
       prefs.setStringList('names', names);
     }
@@ -122,26 +115,31 @@ class _SelectorScreentate extends State<SelectorScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit activity'), // Изменили текст заголовка
-        content: Flexible(
-          child: SizedBox(
+        title: const Text('Edit activity'),
+        content: SizedBox(
             height: 100,
-            child: TextField(
-              controller: textController, // Подключаем контроллер
-              decoration: const InputDecoration(hintText: 'Name:'),
-            ),
-          ),
-        ),
+            child: CustomTextField(
+              hintText: 'Name:',
+              controller: textController,
+              function: null,
+              editingAbility: null,
+              formKey: _formKey,
+              names: names,
+            )),
         actions: <Widget>[
           TextButton(
             onPressed: () async {
-              setState(() {
-                var nameIndex = names
-                    .indexWhere((element) => element == filteredList[index]);
-                names[nameIndex] = textController.text;
-                prefs.setStringList('names', names);
-                updateNames(names);
-              });
+              if (_formKey.currentState!.validate()) {
+                setState(() {
+                  var nameIndex = names
+                      .indexWhere((element) => element == filteredList[index]);
+                  names[nameIndex] = textController.text;
+                  prefs.setStringList('names', names);
+                  updateNames(names);
+                });
+              } else {
+                return;
+              }
               Navigator.of(context).pop();
             },
             child: const Text('OK'),
@@ -159,11 +157,14 @@ class _SelectorScreentate extends State<SelectorScreen> {
           children: [
             Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 30,
                 ),
-                const Text('Select subject to log time on'),
-                Spacer(),
+                const Text(
+                  'Select subject to log time on',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                const Spacer(),
                 IconButton(
                   icon: editModeOff
                       ? const Icon(
@@ -199,110 +200,112 @@ class _SelectorScreentate extends State<SelectorScreen> {
                 showAddActivityDialog(context);
               },
             ),
+            const SizedBox(
+              height: 15,
+            ),
             Expanded(
                 child: ListView.builder(
               itemCount: filteredList.length,
               itemBuilder: (context, index) {
+                Color backgroundColor = index % 2 != 0
+                    ? Colors.white
+                    : const Color.fromARGB(255, 111, 190, 255);
                 if (editModeOff) {
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                                width: MediaQuery.of(context).size.width / 15),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width  - MediaQuery.of(context).size.width / 8,
-                              child: TextButton(
-
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.black,
-                                    textStyle: TextStyle(fontSize: 18,  fontWeight: FontWeight.bold),
-                                  ),
-                                  onPressed: () async {
-                                    Navigator.pop(context, filteredList[index]);
-                                    await filteredList.removeAt(index);
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Flexible(
-                                        child: Text(filteredList[index],
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1),
-                                      ),
-                                    ],
-                                  )),
-                            ),
-                          ],
-                        ),
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: backgroundColor,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width / 30),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width -
+                                MediaQuery.of(context).size.width / 8,
+                            child: TextButton(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  textStyle: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () async {
+                                  Navigator.pop(context, filteredList[index]);
+                                  filteredList.removeAt(index);
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                      child: Text(filteredList[index],
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1),
+                                    ),
+                                  ],
+                                )),
+                          ),
+                        ],
                       ),
-                      if (index < filteredList.length - 1)
-                        const Divider(
-                          color: Colors.grey,
-                          thickness: 1.0,
-                        ),
-                    ],
+                    ),
                   );
                 } else {
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            SizedBox(
-                                width: MediaQuery.of(context).size.width / 15),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 2,
-                              child: TextButton(
-
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.black,
-                                    textStyle: TextStyle(fontSize: 18,  fontWeight: FontWeight.bold),
-                                  ),
-                                  onPressed: () async {
-                                    Navigator.pop(context, filteredList[index]);
-                                    await filteredList.removeAt(index);
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Flexible(
-                                        child: Text(filteredList[index],
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1),
-                                      ),
-                                    ],
-                                  )),
-                            ),
-                            SizedBox(
-                                width: MediaQuery.of(context).size.width / 12),
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                showEditActivityDialog(context, index);
-                              },
-                            ),
-                            SizedBox(
-                                width: MediaQuery.of(context).size.width / 60),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                deleteActivity(filteredList[index]);
-                                print(index);
-                              },
-                            ),
-                          ],
-                        ),
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: backgroundColor,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width / 30),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: TextButton(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  textStyle: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () async {
+                                  Navigator.pop(context, filteredList[index]);
+                                  filteredList.removeAt(index);
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                      child: Text(filteredList[index],
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1),
+                                    ),
+                                  ],
+                                )),
+                          ),
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width / 12),
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              showEditActivityDialog(context, index);
+                            },
+                          ),
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width / 60),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              deleteActivity(filteredList[index]);
+                            },
+                          ),
+                        ],
                       ),
-                      if (index < filteredList.length - 1)
-                        const Divider(
-                          color: Colors.grey,
-                          thickness: 1.0,
-                        ),
-                    ],
+                    ),
                   );
                 }
               },
