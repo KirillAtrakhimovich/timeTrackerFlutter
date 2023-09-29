@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:time_tracker_app/widgets/bottom_navigation_bar.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -11,7 +10,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreentate extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       // bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 3),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -19,14 +18,7 @@ class _SettingsScreentate extends State<SettingsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('3333333333333'),
-              IconButton(
-                icon: const Icon(
-                    Icons.edit), 
-                onPressed: () {
-                 
-                },
-              )
+              Text('Settings screen',style: TextStyle(fontSize: 40)),
             ],
           ),
           

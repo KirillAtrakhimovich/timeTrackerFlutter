@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:time_tracker_app/screens/edit_screen.dart';
-import 'package:time_tracker_app/screens/main_screen.dart';
+import 'package:time_tracker_app/screens/timelog_screen.dart';
 import 'package:time_tracker_app/screens/reports_screen.dart';
-import 'package:time_tracker_app/screens/selector_screen.dart';
+
 import 'package:time_tracker_app/screens/settings_screen.dart';
-import 'package:time_tracker_app/widgets/primary_button.dart';
-import 'package:time_tracker_app/widgets/text_field.dart';
+
 
 class NavigationScreen extends StatefulWidget {
   const NavigationScreen({super.key});
@@ -20,10 +19,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    MainScreen(),
-    EditScreen(),
-    ReportsScreen(),
-    SettingsScreen(),
+    const TimelogScreen(),
+    const EditScreen(),
+    const ReportsScreen(),
+    const SettingsScreen(),
   ];
 
   
@@ -42,24 +41,24 @@ class _NavigationScreenState extends State<NavigationScreen> {
           // ignore: prefer_const_literals_to_create_immutables
           items: [
             const BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+              icon: Icon(Icons.access_time_outlined),
+              label: 'Log Time',
               backgroundColor: Colors.blue
             ),
             const BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Search',
-              backgroundColor: Colors.amber
+              icon: Icon(Icons.mode_edit_outline_outlined),
+              label: 'Edit',
+              backgroundColor: Colors.indigo
             ),
             const BottomNavigationBarItem(
-              icon: Icon(Icons.favorite),
-              label: 'Favorites',
+              icon: Icon(Icons.data_thresholding_outlined),
+              label: 'Reports',
               backgroundColor: Colors.green
             ),
             const BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-              backgroundColor: Colors.pink
+              icon: Icon(Icons.settings_applications),
+              label: 'Settings',
+              backgroundColor: Colors.black45
             ),
           ],
         ),

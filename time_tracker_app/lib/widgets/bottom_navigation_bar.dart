@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:time_tracker_app/screens/edit_screen.dart';
-import 'package:time_tracker_app/screens/main_screen.dart';
+import 'package:time_tracker_app/screens/timelog_screen.dart';
 import 'package:time_tracker_app/screens/reports_screen.dart';
 import 'package:time_tracker_app/screens/settings_screen.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int? currentIndex;
 
+  // ignore: prefer_const_constructors_in_immutables, use_key_in_widget_constructors
   CustomBottomNavigationBar({
     required this.currentIndex,
 
@@ -18,49 +19,44 @@ class CustomBottomNavigationBar extends StatelessWidget {
       currentIndex: currentIndex!,
       onTap: (index) {
           if (index == 0) {
-            // Перейти на экран Home
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => MainScreen()),
+              MaterialPageRoute(builder: (context) => const TimelogScreen()),
             );
           } else if (index == 1) {
-            // Перейти на экран Search
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => EditScreen()),
+              MaterialPageRoute(builder: (context) => const EditScreen()),
             );
           } else if (index == 2) {
-            // Перейти на экран Search
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => ReportsScreen()),
+              MaterialPageRoute(builder: (context) => const ReportsScreen()),
             );
           } else if (index == 3) {
-            // Перейти на экран Search
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => SettingsScreen()),
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
             );
           }
-          // Добавьте обработку для остальных экранов
         },
-      items: [
-            const BottomNavigationBarItem(
+      items: const [
+            BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: 'Home',
               backgroundColor: Colors.blue
             ),
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Icon(Icons.search),
               label: 'Search',
               backgroundColor: Colors.amber
             ),
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Icon(Icons.favorite),
               label: 'Favorites',
               backgroundColor: Colors.green
             ),
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Profile',
               backgroundColor: Colors.pink
